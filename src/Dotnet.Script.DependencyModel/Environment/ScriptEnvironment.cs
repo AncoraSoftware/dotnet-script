@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -21,7 +21,7 @@ namespace Dotnet.Script.DependencyModel.Environment
         private readonly Lazy<bool> _isWindows;
 
         private readonly Lazy<string> _nuGetStoreFolder;
-
+        private readonly Lazy<Version> _version;
         private readonly Lazy<DotnetVersion> _netCoreVersion;
 
         private string _overrriddenTargetFramework;
@@ -30,6 +30,7 @@ namespace Dotnet.Script.DependencyModel.Environment
         {
             _netCoreVersion = new Lazy<DotnetVersion>(GetNetCoreAppVersion);
             _targetFramework = new Lazy<string>(() => _netCoreVersion.Value == DotnetVersion.Unknown ? "net472" : _netCoreVersion.Value.Tfm);
+            _version = new Lazy<Version>(GetVersion);
             _installLocation = new Lazy<string>(GetInstallLocation);
             _platformIdentifier = new Lazy<string>(GetPlatformIdentifier);
             _runtimeIdentifier = new Lazy<string>(GetRuntimeIdentifier);
@@ -40,6 +41,8 @@ namespace Dotnet.Script.DependencyModel.Environment
         public bool IsWindows => _isWindows.Value;
 
         public string PlatformIdentifier => _platformIdentifier.Value;
+
+        public Version Version => _version.Value;
 
         public string RuntimeIdentifier => _runtimeIdentifier.Value;
 
@@ -63,6 +66,12 @@ namespace Dotnet.Script.DependencyModel.Environment
             }
 
             _overrriddenTargetFramework = targetFramework;
+        }
+
+        private static Version GetVersion()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetName().Version;
         }
 
         private static string GetPlatformIdentifier()

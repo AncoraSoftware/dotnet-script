@@ -1,4 +1,4 @@
-﻿using Dotnet.Script.Core.Templates;
+using Dotnet.Script.Core.Templates;
 using Dotnet.Script.DependencyModel.Environment;
 using Dotnet.Script.DependencyModel.Logging;
 using Dotnet.Script.DependencyModel.Process;
@@ -32,8 +32,8 @@ namespace Dotnet.Script.Core
 
         public void InitializerFolder(string fileName, string currentWorkingDirectory)
         {
-            CreateDotnetToolsConfiguration(currentDirectory);
-            CreateTasksConfiguration(currentDirectory);
+            CreateDotnetToolsConfiguration(currentWorkingDirectory);
+            CreateTasksConfiguration(currentWorkingDirectory);
             CreateLaunchConfiguration(currentWorkingDirectory);
             CreateOmniSharpConfigurationFile(currentWorkingDirectory);
             CreateScriptFile(fileName, currentWorkingDirectory);
@@ -199,7 +199,7 @@ namespace Dotnet.Script.Core
             {
                 var DotnetToolsFileTemplate = TemplateLoader.ReadTemplate("dotnet-tools.json.template");
                 var settings = JsonObject.Parse(DotnetToolsFileTemplate);
-                settings["tools"]["dotnet-script"]["version"] = _scriptEnvironment.Version;
+                settings["tools"]["dotnet-script"]["version"] = _scriptEnvironment.Version.ToString();
                 File.WriteAllText(pathToDotnetToolsJson, settings.ToString());
                 _scriptConsole.WriteSuccess($"...'{pathToDotnetToolsJson}' [Created]");
             }

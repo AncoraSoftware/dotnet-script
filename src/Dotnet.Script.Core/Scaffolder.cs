@@ -32,6 +32,8 @@ namespace Dotnet.Script.Core
 
         public void InitializerFolder(string fileName, string currentWorkingDirectory)
         {
+            CreateDotnetToolsConfiguration(currentDirectory);
+            CreateTasksConfiguration(currentDirectory);
             CreateLaunchConfiguration(currentWorkingDirectory);
             CreateOmniSharpConfigurationFile(currentWorkingDirectory);
             CreateScriptFile(fileName, currentWorkingDirectory);
@@ -186,6 +188,40 @@ namespace Dotnet.Script.Core
                     }
                 }
 
+            }
+        }
+
+        private void CreateDotnetToolsConfiguration(string currentWorkingDirectory)
+        {
+            _scriptConsole.WriteNormal("Creating dotnet-tools configuration file");
+            string pathToDotnetToolsJson = Path.Combine(currentWorkingDirectory, ".config", "dotnet-tools.json");
+            if (!File.Exists(pathToDotnetToolsJson))
+            {
+                var DotnetToolsFileTemplate = TemplateLoader.ReadTemplate("dotnet-tools.json.template");
+                var settings = JsonObject.Parse(DotnetToolsFileTemplate);
+                settings["tools"]["dotnet-script"]["version"] = _scriptEnvironment.Version;
+                File.WriteAllText(pathToDotnetToolsJson, settings.ToString());
+                _scriptConsole.WriteSuccess($"...'{pathToDotnetToolsJson}' [Created]");
+            }
+            else
+            {
+                _scriptConsole.WriteHighlighted($"...'{pathToDotnetToolsJson} already exists' [Skipping]");
+            }
+        }
+
+        private void CreateTasksConfiguration(string currentWorkingDirectory)
+        {
+            _scriptConsole.WriteNormal("Creating tasks configuration file");
+            string pathToTasksJson = Path.Combine(currentWorkingDirectory, ".vscode", "tasks.json");
+            if (!File.Exists(pathToTasksJson))
+            {
+                var TasksFileTemplate = TemplateLoader.ReadTemplate("tasks.json.template");
+                File.WriteAllText(pathToTasksJson, TasksFileTemplate);
+                _scriptConsole.WriteSuccess($"...'{pathToTasksJson}' [Created]");
+            }
+            else
+            {
+                _scriptConsole.WriteHighlighted($"...'{pathToTasksJson} already exists' [Skipping]");
             }
         }
     }
